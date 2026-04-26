@@ -51,7 +51,7 @@ header {
   padding: 2px 0;
 }
 header h1 {
-  font-size: clamp(0.75rem, 2.5vw, 1rem);
+  font-size: clamp(1rem, 4vw, 1.25rem);
   color: var(--green);
   letter-spacing: 0.2em;
   text-shadow: 0 0 18px rgba(0,255,136,0.28);
@@ -86,7 +86,7 @@ header h1 {
   flex-shrink: 0;
   display: flex;
   gap: 7px;
-  height: 90px;
+  height: 114px;
 }
 
 .fork-cell {
@@ -110,16 +110,16 @@ header h1 {
 .fork-dash:not(:disabled):active { background: var(--amber-dark); border-color: var(--amber); }
 .fork-dead { opacity: 0.2; cursor: default; }
 
-.fork-sym { font-size: 1.1rem; line-height: 1; }
+.fork-sym { font-size: 1.5rem; line-height: 1; }
 .dot-sym  { color: var(--blue); }
 .dash-sym { color: var(--amber); }
 
-.fork-ltr { font-size: 1.9rem; font-weight: bold; line-height: 1; }
+.fork-ltr { font-size: 2.6rem; font-weight: bold; line-height: 1; }
 .fork-dot  .fork-ltr { color: #66ccff; }
 .fork-dash .fork-ltr { color: #ffcc55; }
 .fork-dead .fork-ltr { color: var(--text-dim); }
 
-.fork-key { font-size: 0.52rem; letter-spacing: 0.1em; color: var(--text-dim); }
+.fork-key { font-size: 0.72rem; letter-spacing: 0.1em; color: var(--text-dim); }
 
 /* fork center */
 .fork-center {
@@ -135,27 +135,27 @@ header h1 {
   padding: 5px 6px;
 }
 .fork-code {
-  font-size: 0.88rem;
+  font-size: 1.1rem;
   color: var(--green);
   letter-spacing: 0.18em;
-  min-height: 1rem;
+  min-height: 1.2rem;
 }
 .fork-current {
-  font-size: 2rem;
+  font-size: 2.8rem;
   font-weight: bold;
   color: var(--red);
   text-shadow: 0 0 14px rgba(255,51,85,0.45);
   line-height: 1;
-  min-height: 2rem;
+  min-height: 2.8rem;
   display: flex;
   align-items: center;
 }
-.fork-actions { display: flex; gap: 4px; }
+.fork-actions { display: flex; gap: 5px; }
 .mini-btn {
   font-family: inherit;
-  font-size: 0.68rem;
-  padding: 2px 7px;
-  border-radius: 5px;
+  font-size: 0.88rem;
+  padding: 4px 10px;
+  border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   color: var(--text);
@@ -172,21 +172,21 @@ header h1 {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 38px;
+  height: 48px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 0 12px;
+  padding: 0 14px;
   overflow: hidden;
 }
 .msg-label {
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   color: var(--text-dim);
   letter-spacing: 0.1em;
   flex-shrink: 0;
 }
 .msg-text {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   color: var(--green);
   letter-spacing: 0.16em;
   white-space: nowrap;
@@ -202,11 +202,11 @@ header h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 165px;
+  gap: 8px;
+  height: 185px;
 }
 .btn-hint {
-  font-size: 0.6rem;
+  font-size: 0.82rem;
   color: var(--text-dim);
   letter-spacing: 0.05em;
 }
@@ -214,8 +214,8 @@ header h1 {
 /* The big button */
 .input-btn {
   position: relative;
-  width: 128px;
-  height: 128px;
+  width: 144px;
+  height: 144px;
   border-radius: 50%;
   border: none;
   background: var(--bg-card);
@@ -260,27 +260,32 @@ header h1 {
   z-index: 1;
 }
 .btn-glyph {
-  font-size: 2.4rem;
+  font-size: 3rem;
   line-height: 1;
   color: var(--green);
   transition: color 0.12s, font-size 0.08s;
 }
-.btn-pressing .btn-glyph  { font-size: 3rem; }
+.btn-pressing .btn-glyph  { font-size: 3.6rem; }
 .btn-dash-mode .btn-glyph { color: var(--amber); }
 
 .btn-sublabel {
-  font-size: 0.58rem;
+  font-size: 0.82rem;
   color: var(--text-dim);
   letter-spacing: 0.1em;
 }
 
 /* ── Small-screen tweaks (iPhone SE etc.) ───────── */
 @media (max-height: 680px) {
-  .app { gap: 5px; }
-  .fork-panel  { height: 78px; }
-  .message-row { height: 32px; }
-  .button-wrap { height: 138px; }
-  .input-btn   { width: 108px; height: 108px; }
-  .fork-ltr    { font-size: 1.5rem; }
-  .fork-current { font-size: 1.7rem; }
+  .app         { gap: 5px; }
+  .fork-panel  { height: 96px; }
+  .fork-ltr    { font-size: 2.1rem; }
+  .fork-current { font-size: 2.3rem; }
+  .fork-code   { font-size: 0.95rem; }
+  .fork-key    { font-size: 0.62rem; }
+  .message-row { height: 40px; }
+  .msg-text    { font-size: 1.15rem; }
+  .button-wrap { height: 155px; }
+  .input-btn   { width: 120px; height: 120px; }
+  .btn-glyph   { font-size: 2.5rem; }
+  .btn-hint    { font-size: 0.72rem; }
 }
