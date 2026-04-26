@@ -3,7 +3,7 @@ import { getPath } from './morseData';
 import { useAudio } from './useAudio';
 import MorseTree from './MorseTree';
 
-const DASH_THRESHOLD = 250; // ms — shorter than this = dot, longer = dash
+const DASH_THRESHOLD = 150; // ms — shorter than this = dot, longer = dash
 
 function InputButton({ onDot, onDash }) {
   const [progress, setProgress] = useState(0); // 0–1
