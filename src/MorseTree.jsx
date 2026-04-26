@@ -1,35 +1,36 @@
 import { useMemo } from 'react';
 import { MORSE_TREE } from './morseData';
 
-const W = 1100;
-const H = 460;
-const PAD_TOP = 36;
-const PAD_SIDE = 8;
-const LEVEL_H = 95;
-const BASE_R = 30;
+// Portrait layout: levels go left → right, slots stack vertically.
+const W = 720;
+const H = 1100;
+const PAD_LEFT = 44;
+const PAD_VERT = 40;
+const LEVEL_W = 138;
+const BASE_R = 26;
 
 function buildLayout() {
   const nodes = [];
   const edges = [];
-  const usableW = W - PAD_SIDE * 2;
+  const usableH = H - PAD_VERT * 2;
 
   function traverse(node, level, pos, edgeType = 'root') {
     if (!node) return;
     const slots = Math.pow(2, level);
-    const x = PAD_SIDE + (pos + 0.5) * (usableW / slots);
-    const y = PAD_TOP + level * LEVEL_H;
+    const x = PAD_LEFT + level * LEVEL_W;
+    const y = PAD_VERT + (pos + 0.5) * (usableH / slots);
     nodes.push({ node, x, y, level, edgeType });
 
-    const childSlotW = usableW / (slots * 2);
+    const childSlotH = usableH / (slots * 2);
     if (node.dot) {
-      const cx = PAD_SIDE + (pos * 2 + 0.5) * childSlotW;
-      const cy = PAD_TOP + (level + 1) * LEVEL_H;
+      const cy = PAD_VERT + (pos * 2 + 0.5) * childSlotH;
+      const cx = PAD_LEFT + (level + 1) * LEVEL_W;
       edges.push({ from: node, to: node.dot, x1: x, y1: y, x2: cx, y2: cy, type: 'dot' });
       traverse(node.dot, level + 1, pos * 2, 'dot');
     }
     if (node.dash) {
-      const cx = PAD_SIDE + (pos * 2 + 1 + 0.5) * childSlotW;
-      const cy = PAD_TOP + (level + 1) * LEVEL_H;
+      const cy = PAD_VERT + (pos * 2 + 1 + 0.5) * childSlotH;
+      const cx = PAD_LEFT + (level + 1) * LEVEL_W;
       edges.push({ from: node, to: node.dash, x1: x, y1: y, x2: cx, y2: cy, type: 'dash' });
       traverse(node.dash, level + 1, pos * 2 + 1, 'dash');
     }
@@ -51,13 +52,13 @@ export default function MorseTree({ currentPath, currentNode }) {
       className="morse-tree"
       aria-label="Morse code tree"
     >
-      {/* legend — node-shape based */}
-      <circle cx={W/2 - 200} cy={20} r={8} fill="none" stroke="#0099dd" strokeWidth={2} />
-      <text x={W/2 - 184} y={25} fill="#0099dd" fontSize={16} fontFamily="monospace">= dot</text>
-      <rect x={W/2 + 130} y={12} width={20} height={16} fill="none" stroke="#cc8800" strokeWidth={2} />
-      <text x={W/2 + 156} y={25} fill="#cc8800" fontSize={16} fontFamily="monospace">= dash</text>
+      {/* legend — node-shape based, top of canvas */}
+      <circle cx={W/2 - 90} cy={20} r={8} fill="none" stroke="#0099dd" strokeWidth={2} />
+      <text x={W/2 - 74} y={25} fill="#0099dd" fontSize={14} fontFamily="monospace">= dot</text>
+      <rect x={W/2 + 20} y={12} width={18} height={16} fill="none" stroke="#cc8800" strokeWidth={2} />
+      <text x={W/2 + 44} y={25} fill="#cc8800" fontSize={14} fontFamily="monospace">= dash</text>
 
-      {/* Edges — subtle connectors */}
+      {/* Edges — subtle horizontal connectors */}
       {edges.map((e, i) => {
         const toNextDot  = currentNode != null && e.from === currentNode && e.to === dotNext;
         const toNextDash = currentNode != null && e.from === currentNode && e.to === dashNext;
@@ -84,17 +85,17 @@ export default function MorseTree({ currentPath, currentNode }) {
 
         let fill, stroke, textFill, opacity = 1;
         let scale = 1;
-        let fontSize = 28;
+        let fontSize = 24;
 
         if (isCurr) {
           fill = '#aa0033'; stroke = '#ff3355'; textFill = '#fff';
-          scale = isRoot ? 1 : 1.3; fontSize = 36;
+          scale = isRoot ? 1 : 1.3; fontSize = 30;
         } else if (isNextDot) {
           fill = '#001d3a'; stroke = '#0099dd'; textFill = '#88ddff';
-          scale = 1.1; fontSize = 32;
+          scale = 1.12; fontSize = 27;
         } else if (isNextDash) {
           fill = '#221400'; stroke = '#cc8800'; textFill = '#ffcc66';
-          scale = 1.1; fontSize = 32;
+          scale = 1.12; fontSize = 27;
         } else if (inPath) {
           fill = '#002a1a'; stroke = '#00aa55'; textFill = '#55ffaa';
         } else {
@@ -123,11 +124,11 @@ export default function MorseTree({ currentPath, currentNode }) {
             ) : (
               <circle cx={n.x} cy={n.y} r={r} fill={fill} stroke={stroke} strokeWidth={sw} />
             )}
-            {isNextDot  && <text x={n.x} y={n.y - rh - 6} textAnchor="middle" fill="#0099dd" fontSize={16} fontFamily="monospace">·</text>}
-            {isNextDash && <text x={n.x} y={n.y - rh - 6} textAnchor="middle" fill="#cc8800" fontSize={16} fontFamily="monospace">—</text>}
+            {isNextDot  && <text x={n.x} y={n.y - rh - 6} textAnchor="middle" fill="#0099dd" fontSize={14} fontFamily="monospace">·</text>}
+            {isNextDash && <text x={n.x} y={n.y - rh - 6} textAnchor="middle" fill="#cc8800" fontSize={14} fontFamily="monospace">—</text>}
             {isRoot ? (
-              <text x={n.x} y={n.y + 8} textAnchor="middle"
-                fill={isCurr ? '#ff8888' : '#2a5a3a'} fontSize={22} fontFamily="monospace">▽</text>
+              <text x={n.x} y={n.y + 7} textAnchor="middle"
+                fill={isCurr ? '#ff8888' : '#2a5a3a'} fontSize={20} fontFamily="monospace">▷</text>
             ) : n.node.letter ? (
               <text x={n.x} y={n.y + fontSize * 0.37}
                 textAnchor="middle" fill={textFill} fontSize={fontSize}
