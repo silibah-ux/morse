@@ -64,7 +64,7 @@ export default function MorseTree({ currentPath, currentNode }) {
         const toNextDot  = currentNode != null && e.from === currentNode && e.to === dotNext;
         const toNextDash = currentNode != null && e.from === currentNode && e.to === dashNext;
         const inPath     = pathSet.has(e.from) && pathSet.has(e.to);
-        let stroke = '#1e3a54', width = 1.5, opacity = 0.45;
+        let stroke = '#2e5878', width = 1.5, opacity = 0.7;
         if (toNextDot)       { stroke = '#0099dd'; width = 3; opacity = 1; }
         else if (toNextDash) { stroke = '#cc8800'; width = 3; opacity = 1; }
         else if (inPath)     { stroke = '#00aa55'; width = 3; opacity = 1; }
@@ -100,8 +100,8 @@ export default function MorseTree({ currentPath, currentNode }) {
         } else if (inPath) {
           fill = '#002a1a'; stroke = '#00aa55'; textFill = '#55ffaa';
         } else {
-          fill = '#0d1e30'; stroke = '#1e3a54'; textFill = '#3a6070';
-          opacity = 0.65;
+          fill = '#0f2540'; stroke = '#2e5878'; textFill = '#7aaac8';
+          opacity = 1;
         }
 
         return (
