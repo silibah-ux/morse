@@ -6,22 +6,24 @@ import MorseTree from './MorseTree';
 export default function App() {
   const [code, setCode] = useState('');
   const [message, setMessage] = useState('');
-  const [flash, setFlash] = useState(null); // 'dot' | 'dash' | null
+  const [flash, setFlash] = useState(null);
   const { playDot, playDash } = useAudio();
   const autoTimer = useRef(null);
 
   const { node, path } = getPath(code);
+  const dotNext  = node?.dot  ?? null;
+  const dashNext = node?.dash ?? null;
 
   const triggerFlash = (type) => {
     setFlash(type);
-    setTimeout(() => setFlash(null), 150);
+    setTimeout(() => setFlash(null), 130);
   };
 
-  const scheduleAutoSubmit = useCallback((currentCode, currentNode) => {
+  const scheduleAutoSubmit = useCallback((nextCode, nextNode) => {
     clearTimeout(autoTimer.current);
-    if (currentCode && currentNode?.letter) {
+    if (nextCode && nextNode?.letter) {
       autoTimer.current = setTimeout(() => {
-        setMessage(m => m + currentNode.letter);
+        setMessage(m => m + nextNode.letter);
         setCode('');
       }, 1400);
     }
@@ -78,11 +80,11 @@ export default function App() {
   useEffect(() => {
     const onKey = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      if (e.key === '.') addDot();
-      else if (e.key === '-') addDash();
-      else if (e.key === ' ') { e.preventDefault(); submit(); }
+      if (e.key === '.')           addDot();
+      else if (e.key === '-')      addDash();
+      else if (e.key === ' ')      { e.preventDefault(); submit(); }
       else if (e.key === 'Backspace') deleteLast();
-      else if (e.key === 'Enter') clearAll();
+      else if (e.key === 'Enter')  clearAll();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -90,9 +92,7 @@ export default function App() {
 
   useEffect(() => () => clearTimeout(autoTimer.current), []);
 
-  const codeDisplay = code
-    ? code.replace(/\./g, '·').replace(/-/g, '—')
-    : '';
+  const codeDisplay = code.replace(/\./g, '·').replace(/-/g, '—');
 
   return (
     <div className="app">
@@ -104,69 +104,60 @@ export default function App() {
         <MorseTree currentPath={path} currentNode={node} />
       </div>
 
-      <div className="status-row">
-        <div className="code-box">
-          <div className="box-label">입력 중</div>
-          <div className="code-symbols">
-            {codeDisplay || <span className="hint-text">· 또는 — 를 누르세요</span>}
-          </div>
-        </div>
-        <div className={`letter-box ${node?.letter ? 'has-letter' : ''}`}>
-          <div className="box-label">현재 글자</div>
-          <div className="current-letter">
-            {node?.letter ?? (code ? '?' : '·')}
-          </div>
-        </div>
-      </div>
-
-      <div className="controls">
+      {/* Fork panel: current position + next two choices */}
+      <div className="fork-panel">
         <button
-          className={`btn-input dot-btn ${flash === 'dot' ? 'active' : ''}`}
-          onPointerDown={addDot}
+          className={`fork-cell fork-dot ${!dotNext ? 'fork-dead' : ''} ${flash === 'dot' ? 'fork-flash' : ''}`}
+          onPointerDown={dotNext ? addDot : undefined}
+          disabled={!dotNext}
         >
-          <div className="input-symbol">·</div>
-          <div className="input-label">DOT</div>
-          <div className="input-key">키: .</div>
+          <div className="fork-symbol dot-symbol">·</div>
+          <div className="fork-arrow">↓</div>
+          <div className="fork-letter">{dotNext?.letter ?? '✕'}</div>
+          <div className="fork-key">DOT &nbsp;·</div>
         </button>
 
-        <button
-          className={`btn-input dash-btn ${flash === 'dash' ? 'active' : ''}`}
-          onPointerDown={addDash}
-        >
-          <div className="input-symbol">—</div>
-          <div className="input-label">DASH</div>
-          <div className="input-key">키: -</div>
-        </button>
-
-        <div className="side-btns">
-          <button className="side-btn ok-btn" onClick={submit} disabled={!node?.letter}>
-            ✓ 확인
-          </button>
-          <button className="side-btn space-btn" onClick={addSpace}>
-            ␣ 띄어쓰기
-          </button>
-          <button className="side-btn del-btn" onClick={deleteLast} disabled={!code}>
-            ⌫ 삭제
-          </button>
-          <button className="side-btn clear-btn" onClick={clearAll}>
-            ✕ 초기화
-          </button>
+        <div className="fork-center">
+          <div className="fork-code">{codeDisplay || <span className="fork-hint">시작</span>}</div>
+          <div className="fork-current">{node?.letter ?? '▽'}</div>
+          <div className="fork-actions">
+            <button className="action-btn ok-btn" onClick={submit} disabled={!node?.letter}>✓</button>
+            <button className="action-btn del-btn" onClick={deleteLast} disabled={!code}>⌫</button>
+          </div>
         </div>
+
+        <button
+          className={`fork-cell fork-dash ${!dashNext ? 'fork-dead' : ''} ${flash === 'dash' ? 'fork-flash' : ''}`}
+          onPointerDown={dashNext ? addDash : undefined}
+          disabled={!dashNext}
+        >
+          <div className="fork-symbol dash-symbol">—</div>
+          <div className="fork-arrow">↓</div>
+          <div className="fork-letter">{dashNext?.letter ?? '✕'}</div>
+          <div className="fork-key">DASH —</div>
+        </button>
       </div>
 
-      <div className="message-box">
-        <div className="box-label">메시지</div>
-        <div className="message-text">
-          {message || <span className="hint-text">여기에 메시지가 표시됩니다</span>}
+      {/* Message + secondary controls */}
+      <div className="bottom-row">
+        <div className="message-box">
+          <div className="box-label">메시지</div>
+          <div className="message-text">
+            {message || <span className="hint-text">여기에 메시지가 표시됩니다</span>}
+          </div>
+        </div>
+        <div className="secondary-btns">
+          <button className="sec-btn space-btn" onClick={addSpace}>␣</button>
+          <button className="sec-btn clear-btn" onClick={clearAll}>✕</button>
         </div>
       </div>
 
       <footer>
-        <span>· = DOT</span>
-        <span>— = DASH</span>
+        <span>. = dot</span>
+        <span>- = dash</span>
         <span>Space = 확인</span>
         <span>Enter = 초기화</span>
-        <span>1.4초 무입력 시 자동 확인</span>
+        <span>1.4초 = 자동 확인</span>
       </footer>
     </div>
   );

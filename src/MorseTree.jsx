@@ -23,16 +23,13 @@ function buildLayout() {
 
     nodes.push({ node, x, y, level });
 
-    const childSlots = slots * 2;
-    const childSlotW = usableW / childSlots;
-
+    const childSlotW = usableW / (slots * 2);
     if (node.dot) {
       const cx = PAD_SIDE + (pos * 2 + 0.5) * childSlotW;
       const cy = PAD_TOP + (level + 1) * LEVEL_H;
       edges.push({ from: node, to: node.dot, x1: x, y1: y, x2: cx, y2: cy, type: 'dot' });
       traverse(node.dot, level + 1, pos * 2);
     }
-
     if (node.dash) {
       const cx = PAD_SIDE + (pos * 2 + 1 + 0.5) * childSlotW;
       const cy = PAD_TOP + (level + 1) * LEVEL_H;
@@ -49,6 +46,9 @@ export default function MorseTree({ currentPath, currentNode }) {
   const { nodes, edges } = useMemo(buildLayout, []);
   const pathSet = new Set(currentPath);
 
+  const dotNext = currentNode?.dot ?? null;
+  const dashNext = currentNode?.dash ?? null;
+
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
@@ -56,24 +56,40 @@ export default function MorseTree({ currentPath, currentNode }) {
       aria-label="Morse code tree diagram"
     >
       {/* Legend */}
-      <text x={W / 2 - 120} y={22} textAnchor="middle" fill="#2a9d5c" fontSize={13} fontFamily="monospace">
+      <text x={W / 2 - 130} y={22} textAnchor="middle" fill="#0077aa" fontSize={12} fontFamily="monospace">
         · · · = dot
       </text>
-      <text x={W / 2 + 120} y={22} textAnchor="middle" fill="#5a7a9a" fontSize={13} fontFamily="monospace">
+      <text x={W / 2 + 130} y={22} textAnchor="middle" fill="#aa7700" fontSize={12} fontFamily="monospace">
         ——— = dash
       </text>
 
       {/* Edges */}
       {edges.map((e, i) => {
-        const active = pathSet.has(e.from) && pathSet.has(e.to);
+        const toNextDot  = currentNode != null && e.from === currentNode && e.to === dotNext;
+        const toNextDash = currentNode != null && e.from === currentNode && e.to === dashNext;
+        const inPath     = pathSet.has(e.from) && pathSet.has(e.to);
+
+        let stroke = '#0c1a28';
+        let width  = 1;
+        let opacity = 0.3;
+        let dash = e.type === 'dot' ? '6,5' : undefined;
+
+        if (toNextDot) {
+          stroke = '#0099dd'; width = 2.5; opacity = 1;
+        } else if (toNextDash) {
+          stroke = '#cc8800'; width = 2.5; opacity = 1;
+        } else if (inPath) {
+          stroke = '#00aa55'; width = 2.5; opacity = 1;
+        }
+
         return (
           <line
             key={i}
-            x1={e.x1} y1={e.y1}
-            x2={e.x2} y2={e.y2}
-            stroke={active ? '#00ff88' : '#1a2e42'}
-            strokeWidth={active ? 3 : 1.5}
-            strokeDasharray={e.type === 'dot' ? '6,5' : undefined}
+            x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+            stroke={stroke}
+            strokeWidth={width}
+            strokeOpacity={opacity}
+            strokeDasharray={dash}
             strokeLinecap="round"
           />
         );
@@ -81,58 +97,63 @@ export default function MorseTree({ currentPath, currentNode }) {
 
       {/* Nodes */}
       {nodes.map((n, i) => {
-        const inPath = pathSet.has(n.node);
-        const isCurr = n.node === currentNode;
-        const isRoot = n.level === 0;
-        const r = isRoot ? R * 0.6 : n.level === 4 ? R * 0.82 : R;
+        const isRoot     = n.level === 0;
+        const isCurr     = n.node === currentNode;
+        const inPath     = pathSet.has(n.node);
+        const isNextDot  = n.node === dotNext;
+        const isNextDash = n.node === dashNext;
 
-        let fill = '#0d1e30';
-        let stroke = '#1a3a5a';
-        let textFill = '#4a7a9a';
+        let fill, stroke, textFill, nodeR, opacity = 1;
+
         if (isCurr) {
-          fill = '#cc2244';
-          stroke = '#ff4466';
-          textFill = '#fff';
+          fill = '#aa0033'; stroke = '#ff3355'; textFill = '#fff';
+          nodeR = isRoot ? R * 0.85 : R * 1.4;
+        } else if (isNextDot) {
+          fill = '#001d3a'; stroke = '#0099dd'; textFill = '#66ccff';
+          nodeR = R * 1.05;
+        } else if (isNextDash) {
+          fill = '#221400'; stroke = '#cc8800'; textFill = '#ffcc55';
+          nodeR = R * 1.05;
         } else if (inPath) {
-          fill = '#006633';
-          stroke = '#00cc66';
-          textFill = '#fff';
+          fill = '#002a1a'; stroke = '#00aa55'; textFill = '#55ffaa';
+          nodeR = R * 0.9;
+        } else {
+          fill = '#090e18'; stroke = '#101e2c'; textFill = '#172535';
+          nodeR = R * 0.72;
+          opacity = 0.4;
         }
 
-        const fontSize = n.level === 4 ? 11 : n.level === 3 ? 13 : 15;
+        const fontSize = n.level === 4 ? 10 : n.level === 3 ? 12 : 14;
 
         return (
-          <g key={i}>
+          <g key={i} opacity={opacity}>
+            {/* Pulse ring for current node */}
             {isCurr && (
               <circle
                 cx={n.x} cy={n.y}
-                r={r + 6}
+                r={nodeR + 7}
                 fill="none"
-                stroke="#ff4466"
+                stroke="#ff3355"
                 strokeWidth={1.5}
-                opacity={0.4}
+                className="pulse-ring"
               />
             )}
-            <circle
-              cx={n.x} cy={n.y}
-              r={r}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={isCurr ? 2.5 : 1.5}
-            />
+
+            <circle cx={n.x} cy={n.y} r={nodeR} fill={fill} stroke={stroke} strokeWidth={isCurr ? 2.5 : 1.5} />
+
+            {/* Dot / dash badge above next-step nodes */}
+            {isNextDot && (
+              <text x={n.x} y={n.y - nodeR - 5} textAnchor="middle" fill="#0099dd" fontSize={11} fontFamily="monospace">·</text>
+            )}
+            {isNextDash && (
+              <text x={n.x} y={n.y - nodeR - 5} textAnchor="middle" fill="#cc8800" fontSize={11} fontFamily="monospace">—</text>
+            )}
+
             {isRoot ? (
-              <text
-                x={n.x} y={n.y + 5}
-                textAnchor="middle"
-                fill="#2a6a4a"
-                fontSize={14}
-                fontFamily="monospace"
-              >
-                ▽
-              </text>
+              <text x={n.x} y={n.y + 5} textAnchor="middle" fill={isCurr ? '#ff8888' : '#2a5a3a'} fontSize={13} fontFamily="monospace">▽</text>
             ) : n.node.letter ? (
               <text
-                x={n.x} y={n.y + (fontSize * 0.37)}
+                x={n.x} y={n.y + fontSize * 0.38}
                 textAnchor="middle"
                 fill={textFill}
                 fontSize={fontSize}
