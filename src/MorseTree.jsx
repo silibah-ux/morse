@@ -1,16 +1,13 @@
 import { useMemo } from 'react';
 import { MORSE_TREE } from './morseData';
 
-// Narrower viewBox → tree scales up more on portrait mobile
 const W = 600;
-const H = 660;
-const PAD_TOP = 40;
+const H = 560;
+const PAD_TOP = 36;
 const PAD_SIDE = 4;
-const LEVELS = 4;
-const LEVEL_H = (H - PAD_TOP - 20) / LEVELS;
+const LEVEL_H = 120;
 
-// Node radius per level
-const BASE_R = [10, 20, 19, 17, 13];
+const BASE_R = [12, 24, 22, 19, 15];
 
 function buildLayout() {
   const nodes = [];
@@ -86,7 +83,7 @@ export default function MorseTree({ currentPath, currentNode }) {
 
         let fill, stroke, textFill, opacity = 1;
         let r = BASE_R[n.level];
-        let fontSize = [0, 21, 18, 16, 13][n.level];
+        let fontSize = [0, 26, 22, 19, 15][n.level];
 
         if (isCurr) {
           fill = '#aa0033'; stroke = '#ff3355'; textFill = '#fff';
