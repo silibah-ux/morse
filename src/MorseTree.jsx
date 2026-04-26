@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { MORSE_TREE } from './morseData';
 
 const W = 1100;
-const H = 580;
+const H = 460;
 const PAD_TOP = 36;
-const PAD_SIDE = 4;
-const LEVEL_H = 130;
+const PAD_SIDE = 8;
+const LEVEL_H = 95;
 const BASE_R = 30;
 
 function buildLayout() {
@@ -51,25 +51,29 @@ export default function MorseTree({ currentPath, currentNode }) {
       className="morse-tree"
       aria-label="Morse code tree"
     >
-      <text x={W/2 - 160} y={24} textAnchor="middle" fill="#0077aa" fontSize={18} fontFamily="monospace">· · · = dot</text>
-      <text x={W/2 + 160} y={24} textAnchor="middle" fill="#996600" fontSize={18} fontFamily="monospace">——— = dash</text>
+      {/* legend — node-shape based */}
+      <circle cx={W/2 - 200} cy={20} r={8} fill="none" stroke="#0099dd" strokeWidth={2} />
+      <text x={W/2 - 184} y={25} fill="#0099dd" fontSize={16} fontFamily="monospace">= dot</text>
+      <rect x={W/2 + 130} y={12} width={20} height={16} fill="none" stroke="#cc8800" strokeWidth={2} />
+      <text x={W/2 + 156} y={25} fill="#cc8800" fontSize={16} fontFamily="monospace">= dash</text>
 
+      {/* Edges — subtle connectors */}
       {edges.map((e, i) => {
         const toNextDot  = currentNode != null && e.from === currentNode && e.to === dotNext;
         const toNextDash = currentNode != null && e.from === currentNode && e.to === dashNext;
         const inPath     = pathSet.has(e.from) && pathSet.has(e.to);
-        let stroke = '#2e5878', width = 2, opacity = 0.7;
-        if (toNextDot)       { stroke = '#0099dd'; width = 4; opacity = 1; }
-        else if (toNextDash) { stroke = '#cc8800'; width = 4; opacity = 1; }
-        else if (inPath)     { stroke = '#00aa55'; width = 4; opacity = 1; }
+        let stroke = '#243d56', width = 1, opacity = 0.5;
+        if (toNextDot)       { stroke = '#0099dd'; width = 2.5; opacity = 0.95; }
+        else if (toNextDash) { stroke = '#cc8800'; width = 2.5; opacity = 0.95; }
+        else if (inPath)     { stroke = '#00aa55'; width = 2; opacity = 0.85; }
         return (
           <line key={i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
             stroke={stroke} strokeWidth={width} strokeOpacity={opacity}
-            strokeDasharray={e.type === 'dot' ? '8,6' : undefined}
             strokeLinecap="round" />
         );
       })}
 
+      {/* Nodes */}
       {nodes.map((n, i) => {
         const isRoot     = n.edgeType === 'root';
         const isDashNode = n.edgeType === 'dash';
@@ -84,13 +88,13 @@ export default function MorseTree({ currentPath, currentNode }) {
 
         if (isCurr) {
           fill = '#aa0033'; stroke = '#ff3355'; textFill = '#fff';
-          scale = isRoot ? 1 : 1.35; fontSize = 36;
+          scale = isRoot ? 1 : 1.3; fontSize = 36;
         } else if (isNextDot) {
           fill = '#001d3a'; stroke = '#0099dd'; textFill = '#88ddff';
-          scale = 1.12; fontSize = 32;
+          scale = 1.1; fontSize = 32;
         } else if (isNextDash) {
           fill = '#221400'; stroke = '#cc8800'; textFill = '#ffcc66';
-          scale = 1.12; fontSize = 32;
+          scale = 1.1; fontSize = 32;
         } else if (inPath) {
           fill = '#002a1a'; stroke = '#00aa55'; textFill = '#55ffaa';
         } else {
@@ -101,7 +105,7 @@ export default function MorseTree({ currentPath, currentNode }) {
         const rw = BASE_R * 1.2 * scale;
         const rh = BASE_R * scale;
         const sw = isCurr ? 3 : 2;
-        const PULSE = 10;
+        const PULSE = 8;
 
         return (
           <g key={i} opacity={opacity}>
